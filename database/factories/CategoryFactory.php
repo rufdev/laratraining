@@ -36,7 +36,7 @@ class CategoryFactory extends Factory
             'Peripherals', 
         ];
         return [
-            'name' => $this->faker->randomElement($deviceCategories),
+            'name' => $this->faker->unique()->randomElement($deviceCategories),
             'description' => $this->faker->sentence()
         ];
     }
