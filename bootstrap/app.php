@@ -25,10 +25,17 @@ return Application::configure(basePath: dirname(__DIR__))
         $middleware->alias([
             'role' => RoleMiddleware::class,
         ]);
-        $middleware->validateCsrfTokens(except: [
-            'categories',
-            'categories/*',
-        ]);
+        // $middleware->validateCsrfTokens(except: [
+        //     'categories',
+        //     'categories/*',
+        //     'locations',
+        //     'locations/*',
+        //     'assets',
+        //     'assets/*',
+        //     'manufacturers',
+        //     'manufacturers/*',
+            
+        // ]);
     })
     ->withExceptions(function (Exceptions $exceptions) {
         //

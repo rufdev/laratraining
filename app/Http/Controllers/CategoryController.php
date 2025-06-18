@@ -45,6 +45,8 @@ class CategoryController extends Controller
      */
     public function store(StoreCategoryRequest $request)
     {
+        \Log::info("message", ['request' => $request->all()]);
+        
         $validatedData = $request->validated();
 
         $category = Category::create($validatedData);
