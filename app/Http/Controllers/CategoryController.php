@@ -60,7 +60,13 @@ class CategoryController extends Controller
      */
     public function show(Category $category)
     {
-        //
+        $category = Category::findOrFail($category->id);
+
+        if (!$category) {
+            return redirect()->back()->with('error', 'Category not found.');
+        }
+
+        return response()->json($category);
     }
 
     /**
