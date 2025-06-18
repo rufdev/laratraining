@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Category;
 use Illuminate\Http\Request;
 use App\Http\Resources\CategoryResource;
+use App\Http\Requests\StoreCategoryRequest;
 
 class CategoryController extends Controller
 {
@@ -42,9 +43,16 @@ class CategoryController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-    public function store(Request $request)
+    public function store(StoreCategoryRequest $request)
     {
-        //
+        $validatedData = $request->validated();
+
+        $category = Category::create($validatedData);
+
+        return response()->json([
+            'message' => 'Category created successfully!',
+            'category' => $category // Optionally return the created category data
+        ], 201); // 201 Created status code
     }
 
     /**
