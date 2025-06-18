@@ -33,9 +33,15 @@ class AssetController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(Asset $location)
+    public function show(Asset $asset)
     {
-        //
+        $asset = Asset::findOrFail($asset->id);
+
+        if (!$asset) {
+            return redirect()->back()->with('error', 'Asset not found.');
+        }
+
+        return response()->json($asset);
     }
 
     /**

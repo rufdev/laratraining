@@ -34,7 +34,13 @@ class ManufacturerController extends Controller
      */
     public function show(Manufacturer $manufacturer)
     {
-        //
+        $manufacturer = Manufacturer::findOrFail($manufacturer->id);
+
+        if (!$manufacturer) {
+            return redirect()->back()->with('error', 'Manufacturer not found.');
+        }
+
+        return response()->json($manufacturer);
     }
 
     /**

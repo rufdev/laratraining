@@ -35,7 +35,13 @@ class LocationController extends Controller
      */
     public function show(Location $location)
     {
-        //
+        $location = Location::findOrFail($location->id);
+
+        if (!$location) {
+            return redirect()->back()->with('error', 'Location not found.');
+        }
+
+        return response()->json($location);
     }
 
     /**
