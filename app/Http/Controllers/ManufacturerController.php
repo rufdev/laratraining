@@ -55,7 +55,7 @@ class ManufacturerController extends Controller
 
         return response()->json([
             'message' => 'Manufacturer updated successfully!',
-            'manu$manufacturer' => $manufacturer->fresh() // Return the fresh, updated manu$manufacturer data
+            'manufacturer' => $manufacturer->fresh() // Return the fresh, updated manu$manufacturer data
         ], 200); // 200 OK status code for successful updates
     }
 
