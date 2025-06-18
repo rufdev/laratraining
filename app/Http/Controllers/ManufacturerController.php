@@ -62,8 +62,15 @@ class ManufacturerController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(Manufacturer $manufacturer)
+    public function destroy($id)
     {
-        //
+        try {
+            $manufacturer = Manufacturer::findOrFail($id); // Find the manufacturer or throw a 404 error
+            $manufacturer->delete(); // Delete the manufacturer
+
+            return response()->json(['message' => 'Manufacturer deleted successfully.'], 200);
+        } catch (\Exception $e) {
+            return response()->json(['message' => 'Failed to delete manufacturer.'], 500);
+        }
     }
 }

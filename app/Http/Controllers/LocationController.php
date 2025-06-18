@@ -63,8 +63,15 @@ class LocationController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(Location $location)
+    public function destroy($id)
     {
-        //
+        try {
+            $location = Location::findOrFail($id); // Find the location or throw a 404 error
+            $location->delete(); // Delete the location
+
+            return response()->json(['message' => 'Location deleted successfully.'], 200);
+        } catch (\Exception $e) {
+            return response()->json(['message' => 'Failed to delete location.'], 500);
+        }
     }
 }

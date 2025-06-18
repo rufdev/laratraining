@@ -63,8 +63,15 @@ class AssetController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(Asset $asset)
+    public function destroy($id)
     {
-        //
+        try {
+            $asset = Asset::findOrFail($id); // Find the asset or throw a 404 error
+            $asset->delete(); // Delete the asset
+
+            return response()->json(['message' => 'Asset deleted successfully.'], 200);
+        } catch (\Exception $e) {
+            return response()->json(['message' => 'Failed to delete asset.'], 500);
+        }
     }
 }
