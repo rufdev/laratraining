@@ -113,4 +113,6 @@ const openDeleteDialog = (id: number) => {
             <ReusableTable ref="tableRef" :columns="columns" :baseentityname="baseentityname" :baseentityurl="baseentityurl" />
         </div>
     </AppLayout>
+
+    
 </template>
