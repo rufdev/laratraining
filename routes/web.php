@@ -26,7 +26,7 @@ Route::middleware(['auth', 'verified', 'role:super_admin,inventory_manager'])->g
     // Route::post('manufacturers/list', [ManufacturerController::class, 'list'])->name('manufacturers.list');
     Route::resource('manufacturers', ManufacturerController::class)->except(['create', 'edit']);
 
-    Route::post('locations/list', [LocationController::class, 'list'])->name('locations.list');
+    // Route::post('locations/list', [LocationController::class, 'list'])->name('locations.list');
     Route::resource('locations', LocationController::class)->except(['create', 'edit']);
 });
 
