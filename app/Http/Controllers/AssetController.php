@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\Asset;
 use App\Http\Requests\StoreAssetRequest;
+use App\Http\Requests\UpdateAssetRequest;
 class AssetController extends Controller
 {
     /**
@@ -47,15 +48,22 @@ class AssetController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, Asset $location)
+    public function update(UpdateAssetRequest $request, Asset $asset)
     {
-        //
+        $validatedData = $request->validated();
+
+        $asset->update($validatedData);
+
+        return response()->json([
+            'message' => 'Asset updated successfully!',
+            'asset' => $asset->fresh() // Return the fresh, updated asset data
+        ], 200); // 200 OK status code for successful updates
     }
 
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(Asset $location)
+    public function destroy(Asset $asset)
     {
         //
     }

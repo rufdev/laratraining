@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Location;
 use Illuminate\Http\Request;
 use App\Http\Requests\StoreLocationRequest;
+use App\Http\Requests\UpdateLocationRequest;
 class LocationController extends Controller
 {
     /**
@@ -47,15 +48,15 @@ class LocationController extends Controller
     /**
      * Update the specified resource in storage.
      */
-     public function update(UpdateCategoryRequest $request, Category $category)
+    public function update(UpdateLocationRequest $request, Location $location)
     {
         $validatedData = $request->validated();
 
-        $category->update($validatedData);
+        $location->update($validatedData);
 
         return response()->json([
-            'message' => 'Category updated successfully!',
-            'category' => $category->fresh() // Return the fresh, updated category data
+            'message' => 'Location updated successfully!',
+            'location' => $location->fresh() // Return the fresh, updated location data
         ], 200); // 200 OK status code for successful updates
     }
 

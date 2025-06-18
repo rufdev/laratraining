@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\Manufacturer;
 use App\Http\Requests\StoreManufacturerRequest;
+use App\Http\Requests\UpdateManufacturerRequest;
 class ManufacturerController extends Controller
 {
     /**
@@ -46,9 +47,16 @@ class ManufacturerController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, Manufacturer $manufacturer)
+    public function update(UpdateManufacturerRequest $request, Manufacturer $manufacturer)
     {
-        //
+        $validatedData = $request->validated();
+
+        $manufacturer->update($validatedData);
+
+        return response()->json([
+            'message' => 'Manufacturer updated successfully!',
+            'manu$manufacturer' => $manufacturer->fresh() // Return the fresh, updated manu$manufacturer data
+        ], 200); // 200 OK status code for successful updates
     }
 
     /**
