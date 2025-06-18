@@ -4,7 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\Asset;
-
+use App\Http\Requests\StoreAssetRequest;
 class AssetController extends Controller
 {
     /**
@@ -18,9 +18,16 @@ class AssetController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-    public function store(Request $request)
+    public function store(StoreAssetRequest $request)
     {
-        //
+        $validatedData = $request->validated();
+
+        $asset = Asset::create($validatedData);
+
+        return response()->json([
+            'message' => 'Asset created successfully!',
+            'asset' => $asset // Optionally return the created asset data
+        ], 201); // 201 Created status code
     }
 
     /**

@@ -4,7 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Location;
 use Illuminate\Http\Request;
-
+use App\Http\Requests\StoreLocationRequest;
 class LocationController extends Controller
 {
     /**
@@ -18,9 +18,16 @@ class LocationController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-    public function store(Request $request)
+    public function store(StoreLocationRequest $request)
     {
-        //
+        $validatedData = $request->validated();
+
+        $location = Location::create($validatedData);
+
+        return response()->json([
+            'message' => 'Location created successfully!',
+            'location' => $location // Optionally return the created location data
+        ], 201); // 201 Created status code
     }
 
     /**
