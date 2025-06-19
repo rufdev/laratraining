@@ -1,12 +1,12 @@
 <script setup lang="ts">
 /* Import Components */
+import ReusableAlertDialog from '@/components/entitycomponents/ReusableAlertDialog.vue';
 import ReusableDropDownAction from '@/components/entitycomponents/ReusableDropDownAction.vue'; // Dropdown for row actions (edit/delete)
 import ReusableTable from '@/components/entitycomponents/ReusableTable.vue'; // Table component for displaying data
-import ReusableAlertDialog from '@/components/entitycomponents/ReusableAlertDialog.vue';
 import { AutoForm } from '@/components/ui/auto-form'; // AutoForm component for form handling
 import { Button } from '@/components/ui/button'; // Button component
 import { Checkbox } from '@/components/ui/checkbox'; // Checkbox component for row selection
-import { Dialog, DialogScrollContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog'; // Dialog components for forms
+import { Dialog, DialogDescription, DialogFooter, DialogHeader, DialogScrollContent, DialogTitle } from '@/components/ui/dialog'; // Dialog components for forms
 import AppLayout from '@/layouts/AppLayout.vue'; // Layout component for the page
 import { Head } from '@inertiajs/vue3'; // Head component for setting the page title
 
@@ -18,14 +18,13 @@ import { useForm } from 'vee-validate'; // Form validation library
 import { h, ref } from 'vue'; // Vue composition API utilities
 import { toast } from 'vue-sonner'; // Toast notifications
 import * as z from 'zod'; // Zod library for schema validation
+import { getLocalTimeZone, parseAbsolute, DateFormatter, parseDate  } from "@internationalized/date";
 
 /* Import Table Utilities */
 import type { ColumnDef } from '@tanstack/vue-table'; // Type definitions for table columns
 
 /* Import Types */
 import { BreadcrumbItem } from '@/types'; // Type definition for breadcrumbs
-
-import { parseAbsolute ,getLocalTimeZone} from '@internationalized/date'; // Utility for parsing dates
 
 /* Base Entity Configuration */
 const baseentityurl = '/assets'; // API endpoint for the entity
@@ -39,8 +38,9 @@ const breadcrumbs: BreadcrumbItem[] = [
     },
 ];
 
+
 const props = defineProps({
-    categories : {
+    categories: {
         type: Object,
         required: true,
     },
@@ -73,8 +73,8 @@ export interface Asset {
     name: string;
     serial_number: string;
     model_name: string;
-    purchase_date: any; 
-    purchase_price: number;
+    purchase_date: string;
+    purchase_price: any;
     status: string;
     notes: string;
 }
@@ -248,9 +248,8 @@ const schema = z.object({
         })
         .max(255, 'Asset tag must not exceed 255 characters')
         .optional(),
-    purchase_date: z.coerce.date()
-        .optional(),
-    purchase_price: z
+    purchase_date: z.coerce.date().optional(),
+    purchase_price: z.coerce
         .number({
             invalid_type_error: 'Purchase price must be a number',
         })
@@ -264,6 +263,7 @@ const schema = z.object({
             invalid_type_error: 'Notes must be a string',
         })
         .max(1000, 'Notes must not exceed 1000 characters')
+        .nullable()
         .optional(),
 });
 
@@ -343,6 +343,7 @@ const fieldconfig: any = {
         label: 'Purchase Price',
         inputProps: {
             type: 'number',
+            step: '0.01', // Allows 2 decimal places
             placeholder: 'Enter purchase price',
         },
         description: 'Price of the asset at the time of purchase.',
@@ -436,10 +437,12 @@ const handleEdit = async (id: number) => {
             ...data,
             category_id: data.category?.name,
             location_id: data.location?.name,
-            manufacturer_id:  data.manufacturer?.name,
+            manufacturer_id: data.manufacturer?.name,
             assigned_to_user_id: data.assigned_to?.name,
-            purchase_date: data.purchase_date ? parseAbsolute(new Date(data.purchase_date).toISOString(), getLocalTimeZone()) : null, 
+            purchase_date: data.purchase_date ? parseDate(data.purchase_date.slice(0, 10)) : null, 
         };
+        // const testdate = parseAbsolute(data.purchase_date, getLocalTimeZone())
+        // console.log(df.format(testdate.toDate(getLocalTimeZone())))
         form.setValues(mappedData); // Populate the form with the item data
         showDialogForm.value = true; // Show the form dialog
     } catch (error) {

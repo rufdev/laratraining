@@ -59,7 +59,7 @@ class StoreAssetRequest extends FormRequest
             'purchase_date.date' => 'The purchase date must be a valid date.',
             'purchase_price.numeric' => 'The purchase price must be a number.',
             'purchase_price.min' => 'The purchase price must be at least 0.',
-            'status.in' => 'The status must be one of the following: active, inactive, maintenance, or retired.',
+            'status.in' => 'The status must be one of the following: Deployed,In Storage,Maintenance,Retired,Broken.',
             'notes.max' => 'The notes may not be greater than 1000 characters.',
         ];
     }

@@ -21,16 +21,15 @@ class UpdateAssetRequest extends FormRequest
      */
     public function rules(): array
     {
-        $assetId = $this->route('assets'); // Assumes the route parameter is named 'asset'
-
+        $asset = $this->route('asset'); // Assumes the route parameter is named 'asset'
         return [
             'category_id' => 'required|exists:categories,id', // Must reference an existing category
             'location_id' => 'nullable|exists:locations,id', // Optional but must reference an existing location
             'manufacturer_id' => 'nullable|exists:manufacturers,id', // Optional but must reference an existing manufacturer
             'assigned_to_user_id' => 'nullable|exists:users,id', // Optional but must reference an existing user
-            'asset_tag' => 'nullable|string|max:255', // Optional but must be unique, ignoring the current asset
-            'name' => 'required|string|max:255', // Required, unique, max 255 characters, ignoring the current asset
-            'serial_number' => 'required|string|max:255|', // Required, unique, max 255 characters, ignoring the current asset
+            'asset_tag' => 'nullable|string|max:255|unique:assets,asset_tag,' . $asset->id, // Optional but must be unique, ignoring the current asset
+            'name' => 'required|string|max:255|unique:assets,name,' . $asset->id, // Required, unique, max 255 characters, ignoring the current asset
+            'serial_number' => 'required|string|max:255|unique:assets,serial_number,' . $asset->id, // Required, unique, max 255 characters, ignoring the current asset
             'model_name' => 'nullable|string|max:255', // Optional, max 255 characters
             'purchase_date' => 'nullable|date', // Optional, must be a valid date
             'purchase_price' => 'nullable|numeric|min:0', // Optional, must be a positive number
@@ -59,7 +58,7 @@ class UpdateAssetRequest extends FormRequest
             'purchase_date.date' => 'The purchase date must be a valid date.',
             'purchase_price.numeric' => 'The purchase price must be a number.',
             'purchase_price.min' => 'The purchase price must be at least 0.',
-            'status.in' => 'The status must be one of the following: active, inactive, maintenance, or retired.',
+            'status.in' => 'The status must be one of the following: Deployed,In Storage,Maintenance,Retired,Broken.',
             'notes.max' => 'The notes may not be greater than 1000 characters.',
         ];
     }

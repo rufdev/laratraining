@@ -28,6 +28,6 @@ RUN npm install && npm run build
 RUN chown -R www-data:www-data /var/www/storage /var/www/bootstrap/cache
 
 # Expose port (if needed)
-EXPOSE 9000
+EXPOSE 8000
 
 CMD ["php-fpm"]
