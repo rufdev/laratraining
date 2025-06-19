@@ -6,7 +6,7 @@ import ReusableAlertDialog from '@/components/entitycomponents/ReusableAlertDial
 import { AutoForm } from '@/components/ui/auto-form'; // AutoForm component for form handling
 import { Button } from '@/components/ui/button'; // Button component
 import { Checkbox } from '@/components/ui/checkbox'; // Checkbox component for row selection
-import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog'; // Dialog components for forms
+import { Dialog, DialogScrollContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog'; // Dialog components for forms
 import AppLayout from '@/layouts/AppLayout.vue'; // Layout component for the page
 import { Head } from '@inertiajs/vue3'; // Head component for setting the page title
 
@@ -374,7 +374,7 @@ const form = useForm({
         name: '',
         serial_number: '',
         model_name: '',
-        purchase_date: parseAbsolute(new Date().toISOString(), getLocalTimeZone()).toDate(),
+        purchase_date: null,
         purchase_price: 0,
         status: '',
         notes: '',
@@ -473,7 +473,7 @@ const handleDelete = async () => {
 
             <!-- Dialog Form -->
             <Dialog v-model:open="showDialogForm">
-                <DialogContent class="sm:max-w-[425px]">
+                <DialogScrollContent class="sm:max-w-[425px]">
                     <DialogHeader>
                         <DialogTitle>{{ mode === 'create' ? 'Create' : 'Update' }} {{ baseentityname }}</DialogTitle>
                     </DialogHeader>
@@ -485,7 +485,7 @@ const handleDelete = async () => {
                             </Button>
                         </DialogFooter>
                     </AutoForm>
-                </DialogContent>
+                </DialogScrollContent>
             </Dialog>
 
             <!-- Delete Confirmation Dialog -->
