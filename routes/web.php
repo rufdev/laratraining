@@ -23,15 +23,15 @@ Route::middleware(['auth', 'verified', 'role:super_admin'])->group(function () {
 });
 
 Route::middleware(['auth', 'verified', 'role:super_admin,inventory_manager'])->group(function () {
-    // Route::post('manufacturers/list', [ManufacturerController::class, 'list'])->name('manufacturers.list');
+    Route::post('manufacturers/list', [ManufacturerController::class, 'list'])->name('manufacturers.list');
     Route::resource('manufacturers', ManufacturerController::class)->except(['create', 'edit']);
 
-    // Route::post('locations/list', [LocationController::class, 'list'])->name('locations.list');
+    Route::post('locations/list', [LocationController::class, 'list'])->name('locations.list');
     Route::resource('locations', LocationController::class)->except(['create', 'edit']);
 });
 
 Route::middleware(['auth', 'verified', 'role:super_admin,inventory_user'])->group(function () {
-    // Route::post('assets/list', [AssetController::class, 'list'])->name('assets.list');
+    Route::post('assets/list', [AssetController::class, 'list'])->name('assets.list');
     Route::resource('assets', AssetController::class)->except(['create', 'edit']);
 });
 
