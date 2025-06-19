@@ -24,6 +24,7 @@ import {
 import axios from 'axios';
 import { ChevronDown, ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight } from 'lucide-vue-next';
 import { onMounted, ref, watch } from 'vue';
+import { Progress } from '@/components/ui/progress';
 
 /* Define props passed to the component */
 const props = defineProps({
@@ -59,13 +60,18 @@ const pagination = ref({
     links: [] as any[], // Pagination links
 });
 
-let table: any; // Vue Table instance
+const table = ref(); // Vue Table instance
 
 /**
  * Fetch rows from the API based on the current pagination, sorting, and filtering state.
  */
-const fetchRows = async () => {
+const fetchRows = async (resetPagination = false) => {
+    loading.value = true;
     try {
+        if (resetPagination) {
+            pagination.value.paginationState.pageIndex = 0;
+        }
+
         const response = await axios.post(`${props.baseentityurl}/list`, {
             page: pagination.value.paginationState.pageIndex + 1,
             per_page: pagination.value.paginationState.pageSize,
@@ -87,16 +93,16 @@ const fetchRows = async () => {
         console.log('Pagination:', pagination.value);
     } catch (error) {
         console.error('Error fetching data:', error);
+    } finally {
+        loading.value = false; // Hide progress bar
     }
 };
-
-
 
 /**
  * Initialize the Vue Table instance with the provided configuration.
  */
 const initializeTable = () => {
-    table = useVueTable({
+    table.value = useVueTable({
         data,
         columns: (props.columns as ColumnDef<unknown, any>[]) ?? [], // Table columns
         getCoreRowModel: getCoreRowModel(), // Core row model
@@ -140,18 +146,18 @@ const initializeTable = () => {
                 return pagination.value.paginationState;
             },
         },
-        onPaginationChange: async (updater) => {
+        onPaginationChange: (updater) => {
             const newState = typeof updater === 'function' ? updater(pagination.value.paginationState) : updater;
             pagination.value.paginationState = newState;
-            await fetchRows(); // Fetch rows for the new page
+            fetchRows(); // Fetch rows for the new page
         },
-        onSortingChange: async (updaterOrValue) => {
+        onSortingChange: (updaterOrValue) => {
             valueUpdater(updaterOrValue, sorting); // Update sorting state
-            await fetchRows(); // Fetch sorted data
+            fetchRows(); // Fetch sorted data
         },
-        onGlobalFilterChange: async (value) => {
+        onGlobalFilterChange: (value) => {
             globalFilter.value = value; // Update the global filter state
-            await fetchRows(); // Fetch filtered data
+            fetchRows(true); // Fetch filtered data
         },
     });
 };
@@ -173,11 +179,11 @@ function debounce(func: any, delay: any) {
 const handleGlobalFilterChange = debounce((newValue: any) => {
     // Only send after 3 characters are typed
     if (newValue === '') {
-        table.setGlobalFilter('');
+        table.value.setGlobalFilter('');
         return;
     }
-    table.setGlobalFilter(newValue);
-}, 300); // 300ms debounce delay
+    table.value.setGlobalFilter(newValue);
+}, 200); // 300ms debounce delay
 
 /* Watch for changes in the global filter and update the table accordingly */
 watch(globalFilter, (newValue) => {
@@ -186,10 +192,10 @@ watch(globalFilter, (newValue) => {
 
 /* Lifecycle hook to initialize the table and fetch data when the component is mounted */
 onMounted(async () => {
-    loading.value = true; // Set loading to true
+    // loading.value = true; // Set loading to true
     await fetchRows(); // Fetch rows
     initializeTable(); // Initialize the table
-    loading.value = false; // Set loading to false after initialization
+    // loading.value = false; // Set loading to false after initialization
 });
 
 /* Expose the fetchRows function for external use */
@@ -200,132 +206,128 @@ defineExpose({
 
 <template>
     <div class="flex h-full flex-1 flex-col gap-4 rounded-xl p-4">
-        <!-- Show loading spinner while data is being fetched -->
-        <div v-if="loading" class="flex h-full items-center justify-center">
-            <div class="spinner-border inline-block h-8 w-8 animate-spin rounded-full border-4" role="status"></div>
+        <!-- Search input and column visibility dropdown -->
+        <div class="flex items-center gap-2 py-4">
+            <Input class="max-w-sm" v-model="globalFilter" placeholder="Search..." />
+            <div class="ml-auto flex items-center gap-2">
+                <DropdownMenu>
+                    <DropdownMenuTrigger as-child>
+                        <Button variant="outline" class="ml-auto"> Columns <ChevronDown class="ml-2 h-4 w-4" /> </Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="end">
+                        <DropdownMenuCheckboxItem
+                            v-for="column in table.getAllColumns().filter((column: any) => column.getCanHide())"
+                            :key="column.id"
+                            class="capitalize"
+                            :model-value="column.getIsVisible()"
+                            @update:model-value="(value: any) => column.toggleVisibility(!!value)"
+                        >
+                            {{ column.id }}
+                        </DropdownMenuCheckboxItem>
+                    </DropdownMenuContent>
+                </DropdownMenu>
+            </div>
+        </div>
+        <div v-if="loading" class="flex items-center justify-center">
+            Queries are fetching in the background...
+        </div>
+        <!-- Table component -->
+        <div class="rounded-md border">
+            <Table>
+                <TableHeader>
+                    <TableRow v-for="headerGroup in table?.getHeaderGroups()" :key="headerGroup.id">
+                        <TableHead
+                            v-for="header in headerGroup.headers"
+                            :key="header.id"
+                            :class="
+                                cn(
+                                    { 'sticky bg-background/95': header.column.getIsPinned() },
+                                    header.column.getIsPinned() === 'left' ? 'left-0' : 'right-0',
+                                )
+                            "
+                        >
+                            <FlexRender v-if="!header.isPlaceholder" :render="header.column.columnDef.header" :props="header.getContext()" />
+                        </TableHead>
+                    </TableRow>
+                </TableHeader>
+
+                <TableBody>
+                    <template v-if="table?.getRowModel().rows?.length">
+                        <template v-for="row in table?.getRowModel().rows" :key="row.id">
+                            <TableRow>
+                                <TableCell
+                                    v-for="cell in row.getVisibleCells()"
+                                    :key="cell.id"
+                                    :class="
+                                        cn(
+                                            { 'sticky bg-background/95': cell.column.getIsPinned() },
+                                            cell.column.getIsPinned() === 'left' ? 'left-0' : 'right-0',
+                                        )
+                                    "
+                                >
+                                    <FlexRender :render="cell.column.columnDef.cell" :props="cell.getContext()" />
+                                </TableCell>
+                            </TableRow>
+                        </template>
+                    </template>
+                    <TableRow v-else>
+                        <TableCell :colspan="props.columns?.length" class="h-24 text-center"> No results. </TableCell>
+                    </TableRow>
+                </TableBody>
+            </Table>
         </div>
 
-        <!-- Show table when not loading -->
-        <div v-else>
-            <!-- Search input and column visibility dropdown -->
-            <div class="flex items-center gap-2 py-4">
-                <Input class="max-w-sm" v-model="globalFilter" placeholder="Search..." />
-                <div class="ml-auto flex items-center gap-2">
-                    <DropdownMenu>
-                        <DropdownMenuTrigger as-child>
-                            <Button variant="outline" class="ml-auto"> Columns <ChevronDown class="ml-2 h-4 w-4" /> </Button>
-                        </DropdownMenuTrigger>
-                        <DropdownMenuContent align="end">
-                            <DropdownMenuCheckboxItem
-                                v-for="column in table.getAllColumns().filter((column: any) => column.getCanHide())"
-                                :key="column.id"
-                                class="capitalize"
-                                :model-value="column.getIsVisible()"
-                                @update:model-value="(value: any) => column.toggleVisibility(!!value)"
-                            >
-                                {{ column.id }}
-                            </DropdownMenuCheckboxItem>
-                        </DropdownMenuContent>
-                    </DropdownMenu>
-                </div>
+        <!-- Pagination controls -->
+        <div class="flex items-center justify-end space-x-2 py-4">
+            <div class="flex-1 text-sm text-muted-foreground">
+                {{ table?.getFilteredSelectedRowModel().rows.length }} of {{ table?.getFilteredRowModel().rows.length }} row(s) selected. Total
+                {{ pagination.total }} entities
             </div>
-           
-            <!-- Table component -->
-            <div class="rounded-md border">
-                <Table>
-                    <TableHeader>
-                        <TableRow v-for="headerGroup in table.getHeaderGroups()" :key="headerGroup.id">
-                            <TableHead
-                                v-for="header in headerGroup.headers"
-                                :key="header.id"
-                                :class="
-                                    cn(
-                                        { 'sticky bg-background/95': header.column.getIsPinned() },
-                                        header.column.getIsPinned() === 'left' ? 'left-0' : 'right-0',
-                                    )
-                                "
-                            >
-                                <FlexRender v-if="!header.isPlaceholder" :render="header.column.columnDef.header" :props="header.getContext()" />
-                            </TableHead>
-                        </TableRow>
-                    </TableHeader>
-                    <TableBody>
-                        <template v-if="table.getRowModel().rows?.length">
-                            <template v-for="row in table.getRowModel().rows" :key="row.id">
-                                <TableRow>
-                                    <TableCell
-                                        v-for="cell in row.getVisibleCells()"
-                                        :key="cell.id"
-                                        :class="
-                                            cn(
-                                                { 'sticky bg-background/95': cell.column.getIsPinned() },
-                                                cell.column.getIsPinned() === 'left' ? 'left-0' : 'right-0',
-                                            )
-                                        "
-                                    >
-                                        <FlexRender :render="cell.column.columnDef.cell" :props="cell.getContext()" />
-                                    </TableCell>
-                                </TableRow>
-                            </template>
-                        </template>
-                        <TableRow v-else>
-                            <TableCell :colspan="props.columns?.length" class="h-24 text-center"> No results. </TableCell>
-                        </TableRow>
-                    </TableBody>
-                </Table>
+            <div class="flex items-center space-x-2">
+                <p class="text-sm font-medium">Rows per page</p>
+                <Select :model-value="pagination.current_page.toString()" @update:model-value="(value) => table.setPageSize(Number(value))">
+                    <SelectTrigger class="h-8 w-[70px]">
+                        <SelectValue :placeholder="pagination.per_page.toString()" />
+                    </SelectTrigger>
+                    <SelectContent side="top">
+                        <SelectItem v-for="size in pageSizesOptions" :key="size" :value="size.toString()">
+                            {{ size }}
+                        </SelectItem>
+                    </SelectContent>
+                </Select>
             </div>
 
-            <!-- Pagination controls -->
-            <div class="flex items-center justify-end space-x-2 py-4">
-                <div class="flex-1 text-sm text-muted-foreground">
-                    {{ table.getFilteredSelectedRowModel().rows.length }} of {{ table.getFilteredRowModel().rows.length }} row(s) selected. Total
-                    {{ pagination.total }} entities
-                </div>
-                <div class="flex items-center space-x-2">
-                    <p class="text-sm font-medium">Rows per page</p>
-                    <Select :model-value="pagination.current_page.toString()" @update:model-value="(value) => table.setPageSize(Number(value))">
-                        <SelectTrigger class="h-8 w-[70px]">
-                            <SelectValue :placeholder="pagination.per_page.toString()" />
-                        </SelectTrigger>
-                        <SelectContent side="top">
-                            <SelectItem v-for="size in pageSizesOptions" :key="size" :value="size.toString()">
-                                {{ size }}
-                            </SelectItem>
-                        </SelectContent>
-                    </Select>
-                </div>
-
-                <div class="flex items-center space-x-2">
+            <div class="flex items-center space-x-2">
+                <!-- Previous Page Button -->
+                <Button variant="outline" size="sm" :disabled="pagination.current_page === 1" @click="table.setPageIndex(0)">
+                    <ChevronsLeft />
+                </Button>
+                <!-- Page Links -->
+                <div class="flex items-center space-x-4">
                     <!-- Previous Page Button -->
-                    <Button variant="outline" size="sm" :disabled="pagination.current_page === 1" @click="table.setPageIndex(0)">
-                        <ChevronsLeft />
+                    <Button variant="outline" size="sm" :disabled="pagination.current_page === 1" @click="table.previousPage()">
+                        <ChevronLeft class="h-4 w-4" />
                     </Button>
-                    <!-- Page Links -->
-                    <div class="flex items-center space-x-4">
-                        <!-- Previous Page Button -->
-                        <Button variant="outline" size="sm" :disabled="pagination.current_page === 1" @click="table.previousPage()">
-                            <ChevronLeft class="h-4 w-4" />
-                        </Button>
-                        <!-- Current Page Information -->
-                        <span class="text-sm">Page {{ pagination.current_page }} of {{ pagination.last_page }}</span>
-
-                        <!-- Next Page Button -->
-                        <Button variant="outline" size="sm" :disabled="pagination.current_page === pagination.last_page" @click="table.nextPage()">
-                            <ChevronRight class="h-4 w-4" />
-                        </Button>
-                    </div>
+                    <!-- Current Page Information -->
+                    <span class="text-sm">Page {{ pagination.current_page }} of {{ pagination.last_page }}</span>
 
                     <!-- Next Page Button -->
-                    <Button
-                        variant="outline"
-                        size="sm"
-                        :disabled="pagination.current_page === pagination.last_page"
-                        @click="table.setPageIndex(pagination.last_page - 1)"
-                    >
-                        <ChevronsRight />
+                    <Button variant="outline" size="sm" :disabled="pagination.current_page === pagination.last_page" @click="table.nextPage()">
+                        <ChevronRight class="h-4 w-4" />
                     </Button>
                 </div>
+
+                <!-- Next Page Button -->
+                <Button
+                    variant="outline"
+                    size="sm"
+                    :disabled="pagination.current_page === pagination.last_page"
+                    @click="table.setPageIndex(pagination.last_page - 1)"
+                >
+                    <ChevronsRight />
+                </Button>
             </div>
         </div>
     </div>
+    <!-- </div> -->
 </template>

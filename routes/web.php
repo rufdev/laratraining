@@ -18,7 +18,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
 });
 
 Route::middleware(['auth', 'verified', 'role:super_admin'])->group(function () {
-    // Route::post('categories/list', [CategoryController::class, 'list'])->name('categories.list');
+    Route::post('categories/list', [CategoryController::class, 'list'])->name('categories.list');
     Route::resource('categories', CategoryController::class)->except(['create', 'edit']);
 });
 

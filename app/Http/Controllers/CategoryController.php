@@ -37,6 +37,7 @@ class CategoryController extends Controller
         $categories = CategoryResource::collection(
             $query->orderBy('name', 'asc')->paginate($request->input('per_page', 5))
         );
+
         
         return $categories;
     }
