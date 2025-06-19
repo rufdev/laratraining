@@ -401,7 +401,7 @@ const onSubmit = async (values: any) => {
             category_id: props.categories.find((category: any) => category.name === values.category_id)?.id || null,
             location_id: props.locations.find((location: any) => location.name === values.lcoation_id)?.id || null,
             manufacturer_id: props.manufacturers.find((manufacturer: any) => manufacturer.name === values.manufacturer_id)?.id || null,
-            assign_to_user_id: props.users.find((user: any) => user.name === values.assign_to_user_id)?.id || null,
+            assigned_to_user_id: props.users.find((user: any) => user.name === values.assigned_to_user_id)?.id || null,
             status: Object.keys(statusEnum).find((key) => statusEnum[key as keyof typeof statusEnum] === values.status) || null,
         };
 
