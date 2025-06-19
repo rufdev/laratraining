@@ -48,9 +48,6 @@ const df = new DateFormatter('en-US', {
           </div>
         </slot>
       </FormControl>
-      <pre class="text-xs text-gray-500 bg-gray-100 p-2 mt-2 rounded">
-  {{ JSON.stringify(slotProps.componentField.modelValue, null, 2) }}
-</pre>
       <FormDescription v-if="config?.description">
         {{ config.description }}
       </FormDescription>

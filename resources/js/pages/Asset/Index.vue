@@ -11,6 +11,7 @@ import AppLayout from '@/layouts/AppLayout.vue'; // Layout component for the pag
 import { Head } from '@inertiajs/vue3'; // Head component for setting the page title
 
 /* Import Utilities */
+import { parseDate } from "@internationalized/date";
 import { toTypedSchema } from '@vee-validate/zod'; // Utility for converting Zod schemas to Vee-Validate schemas
 import axios from 'axios'; // HTTP client for API requests
 import { ArrowUpDown, Plus } from 'lucide-vue-next'; // Icons for UI
@@ -18,7 +19,6 @@ import { useForm } from 'vee-validate'; // Form validation library
 import { h, ref } from 'vue'; // Vue composition API utilities
 import { toast } from 'vue-sonner'; // Toast notifications
 import * as z from 'zod'; // Zod library for schema validation
-import { getLocalTimeZone, parseAbsolute, DateFormatter, parseDate  } from "@internationalized/date";
 
 /* Import Table Utilities */
 import type { ColumnDef } from '@tanstack/vue-table'; // Type definitions for table columns
@@ -219,28 +219,16 @@ const schema = z.object({
     ),
     location_id: z
         .enum(
-            props.locations.map((item: any) => item.name),
-            {
-                required_error: 'Location is required',
-            },
-        )
-        .optional(),
+            props.locations.map((item: any) => item.name)
+        ).nullable(),
     manufacturer_id: z
         .enum(
-            props.manufacturers.map((item: any) => item.name),
-            {
-                required_error: 'Manufacturer is required',
-            },
-        )
-        .optional(),
+            props.manufacturers.map((item: any) => item.name)
+        ).nullable(),
     assigned_to_user_id: z
         .enum(
-            props.users.map((item: any) => item.name),
-            {
-                required_error: 'Users is required',
-            },
-        )
-        .optional(),
+            props.users.map((item: any) => item.name)
+        ).nullable(),
     asset_tag: z
         .string({
             required_error: 'Asset tag is required',
@@ -367,17 +355,17 @@ const fieldconfig: any = {
 const form = useForm({
     validationSchema: toTypedSchema(schema), // Validation schema
     initialValues: {
-        category_id: '',
-        location_id: '',
-        manufacturer_id: '',
-        assigned_to_user_id: '',
+        category_id: null,
+        location_id: null,
+        manufacturer_id: null,
+        assigned_to_user_id: null,
         asset_tag: '',
         name: '',
         serial_number: '',
         model_name: '',
         purchase_date: null,
         purchase_price: 0,
-        status: '',
+        status: null,
         notes: '',
     },
 });
