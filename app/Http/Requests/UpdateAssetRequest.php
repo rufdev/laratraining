@@ -21,13 +21,21 @@ class UpdateAssetRequest extends FormRequest
      */
     public function rules(): array
     {
-        $assetId = $this->route('asset'); // Assumes the route parameter is named 'asset'
+        $assetId = $this->route('assets'); // Assumes the route parameter is named 'asset'
 
         return [
             'category_id' => 'required|exists:categories,id', // Must reference an existing category
             'location_id' => 'nullable|exists:locations,id', // Optional but must reference an existing location
             'manufacturer_id' => 'nullable|exists:manufacturers,id', // Optional but must reference an existing manufacturer
             'assigned_to_user_id' => 'nullable|exists:users,id', // Optional but must reference an existing user
+            'asset_tag' => 'nullable|string|max:255|unique:assets,asset_tag,' . $assetId, // Optional but must be unique, ignoring the current asset
+            'name' => 'required|string|max:255|unique:assets,name,' . $assetId, // Required, unique, max 255 characters, ignoring the current asset
+            'serial_number' => 'required|string|max:255|unique:assets,serial_number,' . $assetId, // Required, unique, max 255 characters, ignoring the current asset
+            'model_name' => 'nullable|string|max:255', // Optional, max 255 characters
+            'purchase_date' => 'nullable|date', // Optional, must be a valid date
+            'purchase_price' => 'nullable|numeric|min:0', // Optional, must be a positive number
+            'status' => 'nullable|in:'. implode(',', array_column(AssetStatusEnum::cases(), 'value')), // Optional, must be one of the valid statuses
+            'notes' => 'nullable|string|max:1000', // Optional, max 1000 characters
         ];
     }
 
