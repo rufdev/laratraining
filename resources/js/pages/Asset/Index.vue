@@ -37,6 +37,21 @@ const breadcrumbs: BreadcrumbItem[] = [
     },
 ];
 
+const props = defineProps({
+    categories : {
+        type: Object,
+    },
+    locaitons: {
+        type: Object,
+    },
+    manufacturers: {
+        type: Object,
+    },
+    users: {
+        type: Object,
+    },
+});
+
 /* Define Props */
 export interface Asset {
     id: number;
