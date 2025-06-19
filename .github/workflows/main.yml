@@ -28,4 +28,6 @@ jobs:
         with:
           context: .
           push: true
-          tags: aguilarufino/laravel-vue-starterkit:latest
+          tags: |
+            aguilarufino/laravel-vue-starterkit:latest
+            aguilarufino/laravel-vue-starterkit:${{ github.sha }}
