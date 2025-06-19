@@ -22,6 +22,7 @@ class StoreAssetRequest extends FormRequest
      */
     public function rules(): array
     {
+        \Log::info(implode(',', array_column(AssetStatusEnum::cases(), 'value')));
         return [
             'category_id' => 'required|exists:categories,id', // Must reference an existing category
             'location_id' => 'nullable|exists:locations,id', // Optional but must reference an existing location

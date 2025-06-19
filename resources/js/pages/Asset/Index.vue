@@ -374,7 +374,7 @@ const form = useForm({
         name: '',
         serial_number: '',
         model_name: '',
-        purchase_date: parseAbsolute(new Date().toISOString(), getLocalTimeZone()),
+        purchase_date: null,
         purchase_price: 0,
         status: '',
         notes: '',
@@ -402,7 +402,6 @@ const onSubmit = async (values: any) => {
             location_id: props.locations.find((location: any) => location.name === values.lcoation_id)?.id || null,
             manufacturer_id: props.manufacturers.find((manufacturer: any) => manufacturer.name === values.manufacturer_id)?.id || null,
             assigned_to_user_id: props.users.find((user: any) => user.name === values.assigned_to_user_id)?.id || null,
-            status: Object.keys(statusEnum).find((key) => statusEnum[key as keyof typeof statusEnum] === values.status) || null,
         };
 
         if (mode.value === 'create') {
@@ -432,7 +431,16 @@ const handleEdit = async (id: number) => {
         mode.value = 'edit'; // Set mode to edit
         itemID.value = id; // Set the item ID
         const response = await axios.get(`${baseentityurl}/${id}`); // Fetch the item data
-        form.setValues(response.data); // Populate the form with the item data
+        const data = response.data;
+        const mappedData = {
+            ...data,
+            category_id: data.category?.name,
+            location_id: data.location?.name,
+            manufacturer_id:  data.manufacturer?.name,
+            assigned_to_user_id: data.assigned_to?.name,
+            purchase_date: data.purchase_date ? parseAbsolute(new Date(data.purchase_date).toISOString(), getLocalTimeZone()) : null, 
+        };
+        form.setValues(mappedData); // Populate the form with the item data
         showDialogForm.value = true; // Show the form dialog
     } catch (error) {
         console.log(`Error fetching ${baseentityname} data:`, error);

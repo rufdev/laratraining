@@ -74,7 +74,7 @@ class AssetController extends Controller
      */
     public function show(Asset $asset)
     {
-        $asset = Asset::findOrFail($asset->id);
+        $asset = Asset::with(['category', 'location', 'manufacturer', 'assignedTo'])->findOrFail($asset->id);
 
         if (!$asset) {
             return redirect()->back()->with('error', 'Asset not found.');
