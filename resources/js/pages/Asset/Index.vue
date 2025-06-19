@@ -25,6 +25,8 @@ import type { ColumnDef } from '@tanstack/vue-table'; // Type definitions for ta
 /* Import Types */
 import { BreadcrumbItem } from '@/types'; // Type definition for breadcrumbs
 
+import { parseAbsolute ,getLocalTimeZone} from '@internationalized/date'; // Utility for parsing dates
+
 /* Base Entity Configuration */
 const baseentityurl = '/assets'; // API endpoint for the entity
 const baseentityname = 'Asset'; // Name of the entity
@@ -40,15 +42,19 @@ const breadcrumbs: BreadcrumbItem[] = [
 const props = defineProps({
     categories : {
         type: Object,
+        required: true,
     },
-    locaitons: {
+    locations: {
         type: Object,
+        required: true,
     },
     manufacturers: {
         type: Object,
+        required: true,
     },
     users: {
         type: Object,
+        required: true,
     },
 });
 
@@ -191,11 +197,74 @@ const schema = z.object({
             required_error: 'Name is required',
             invalid_type_error: 'Name must be a string',
         })
-        .toUpperCase()
-        .min(3, {
-            message: 'Name must be at least 3 characters long',
-        }),
-    description: z.string().toUpperCase().optional(),
+        .min(3, 'Name must be at least 3 characters long')
+        .max(255, 'Name must not exceed 255 characters'),
+    serial_number: z
+        .string({
+            required_error: 'Serial number is required',
+            invalid_type_error: 'Serial number must be a string',
+        })
+        .max(255, 'Serial number must not exceed 255 characters'),
+    model_name: z
+        .string({
+            invalid_type_error: 'Model name must be a string',
+        })
+        .max(255, 'Model name must not exceed 255 characters')
+        .optional(),
+    category_id: z.enum(
+        props.categories.map((item: any) => item.name),
+        {
+            required_error: 'Category is required',
+        },
+    ),
+    location_id: z
+        .enum(
+            props.locations.map((item: any) => item.name),
+            {
+                required_error: 'Location is required',
+            },
+        )
+        .optional(),
+    manufacturer_id: z
+        .enum(
+            props.manufacturers.map((item: any) => item.name),
+            {
+                required_error: 'Manufacturer is required',
+            },
+        )
+        .optional(),
+    assigned_to_user_id: z
+        .enum(
+            props.users.map((item: any) => item.name),
+            {
+                required_error: 'Users is required',
+            },
+        )
+        .optional(),
+    asset_tag: z
+        .string({
+            required_error: 'Asset tag is required',
+            invalid_type_error: 'Asset tag must be a string',
+        })
+        .max(255, 'Asset tag must not exceed 255 characters')
+        .optional(),
+    purchase_date: z.coerce.date()
+        .optional(),
+    purchase_price: z
+        .number({
+            invalid_type_error: 'Purchase price must be a number',
+        })
+        .nonnegative('Purchase price must be a positive number')
+        .optional(),
+    status: z.enum(Object.values(statusEnum) as [string, ...string[]], {
+        required_error: 'Status is required',
+    }),
+    notes: z
+        .string({
+            invalid_type_error: 'Notes must be a string',
+        })
+        .max(1000, 'Notes must not exceed 1000 characters')
+        .optional(),
 });
 
 const fieldconfig: any = {
@@ -204,24 +273,111 @@ const fieldconfig: any = {
         inputProps: {
             type: 'text',
             class: 'uppercase',
+            placeholder: 'Enter asset name',
         },
-        description: 'Name of the category',
+        description: 'Name of the asset.',
     },
-    description: {
-        label: 'Description',
-        component: 'textarea',
+    serial_number: {
+        label: 'Serial Number',
+        inputProps: {
+            type: 'text',
+            class: 'uppercase',
+            placeholder: 'Enter serial number',
+        },
+        description: 'Serial number of the asset.',
+    },
+    model_name: {
+        label: 'Model Name',
+        inputProps: {
+            type: 'text',
+            class: 'uppercase',
+            placeholder: 'Enter model name',
+        },
+        description: 'Model name of the asset.',
+    },
+    category_id: {
+        label: 'Select Category', // Custom label for the field
+        component: 'select', // Tell AutoForm to render a <select> element
+        inputProps: {
+            placeholder: 'Choose a category...', // Placeholder for the select
+        },
+    },
+    location_id: {
+        label: 'Select Location', // Custom label for the field
+        component: 'select', // Tell AutoForm to render a <select> element
+        inputProps: {
+            placeholder: 'Choose a location...', // Placeholder for the select
+        },
+    },
+    manufacturer_id: {
+        label: 'Select Manufacturer', // Custom label for the field
+        component: 'select', // Tell AutoForm to render a <select> element
+        inputProps: {
+            placeholder: 'Choose a manufacturer...', // Placeholder for the select
+        },
+    },
+    assigned_to_user_id: {
+        label: 'Select Assigned User', // Custom label for the field
+        component: 'select', // Tell AutoForm to render a <select> element
+        inputProps: {
+            placeholder: 'Choose a user...', // Placeholder for the select
+        },
+    },
+    asset_tag: {
+        label: 'Asset Tag',
+        inputProps: {
+            type: 'text',
+            class: 'uppercase',
+            placeholder: 'Enter asset tag',
+        },
+        description: 'Unique identifier for the asset.',
+    },
+    purchase_date: {
+        label: 'Purchase Date',
+        inputProps: {
+            type: 'date',
+        },
+        description: 'Date when the asset was purchased.',
+    },
+    purchase_price: {
+        label: 'Purchase Price',
+        inputProps: {
+            type: 'number',
+            placeholder: 'Enter purchase price',
+        },
+        description: 'Price of the asset at the time of purchase.',
+    },
+    status: {
+        label: 'Status',
+        component: 'select', // Dropdown for selecting status
+        description: 'Current status of the asset.',
+    },
+    notes: {
+        label: 'Notes',
+        component: 'textarea', // Textarea for notes
         inputProps: {
             class: 'uppercase',
-            placeholder: 'Enter category description',
+            placeholder: 'Enter additional notes',
         },
+        description: 'Additional information about the asset.',
     },
 };
 
 const form = useForm({
     validationSchema: toTypedSchema(schema), // Validation schema
     initialValues: {
+        category_id: '',
+        location_id: '',
+        manufacturer_id: '',
+        assigned_to_user_id: '',
+        asset_tag: '',
         name: '',
-        description: '',
+        serial_number: '',
+        model_name: '',
+        purchase_date: parseAbsolute(new Date().toISOString(), getLocalTimeZone()).toDate(),
+        purchase_price: 0,
+        status: '',
+        notes: '',
     },
 });
 
