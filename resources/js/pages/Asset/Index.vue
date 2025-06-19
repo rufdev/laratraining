@@ -100,6 +100,11 @@ const columns: ColumnDef<Asset>[] = [
         cell: ({ row }) => h('div', { class: 'break-words whitespace-normal' }, row.getValue('name')),
     },
     {
+        accessorKey: 'asset_tag',
+        header: 'Asset Tag',
+        cell: ({ row }) => h('div', { class: 'break-words whitespace-normal' }, row.getValue('asset_tag')),
+    },
+    {
         accessorKey: 'category.name',
         header: 'Category',
         cell: ({ row }) => h('div', { class: 'break-words whitespace-normal' }, row.original.category?.name || ''),
