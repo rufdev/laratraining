@@ -45,7 +45,7 @@ export interface Location {
 }
 
 /* Define Table Columns */
-const columns: ColumnDef<Category>[] = [
+const columns: ColumnDef<Location>[] = [
     {
         id: 'select', // Column for row selection
         header: ({ table }) =>
@@ -117,7 +117,7 @@ const schema = z.object({
         .min(3, {
             message: 'Name must be at least 3 characters long',
         }),
-    description: z.string().toUpperCase().optional(),
+    address: z.string().toUpperCase().optional(),
 });
 
 const fieldconfig: any = {
@@ -127,14 +127,14 @@ const fieldconfig: any = {
             type: 'text',
             class: 'uppercase',
         },
-        description: 'Name of the category',
+        description: 'Name of the location',
     },
-    description: {
-        label: 'Description',
+    address: {
+        label: 'Address',
         component: 'textarea',
         inputProps: {
             class: 'uppercase',
-            placeholder: 'Enter category description',
+            placeholder: 'Enter location address',
         },
     },
 };
@@ -143,7 +143,7 @@ const form = useForm({
     validationSchema: toTypedSchema(schema), // Validation schema
     initialValues: {
         name: '',
-        description: '',
+        address: '',
     },
 });
 

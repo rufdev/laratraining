@@ -162,6 +162,14 @@ const tableRef = ref<InstanceType<typeof ReusableTable> | null>(null); // Refere
 
 const onSubmit = async (values: any) => {
     try {
+        const result = schema.safeParse(values);
+        console.log(result);
+        // if (!result.success) {
+        //     form.setErrors(result.error.flatten().fieldErrors); // Set validation errors
+        //     toast.error('Validation failed. Please check your input.');
+        //     return;
+        // }
+
         if (mode.value === 'create') {
             await axios.post(`${baseentityurl}`, values); // Create a new category
             toast.success(`${baseentityname} created successfully.`);

@@ -120,7 +120,12 @@ const schema = z.object({
         .min(3, {
             message: 'Name must be at least 3 characters long',
         }),
-    description: z.string().toUpperCase().optional(),
+        url: z.string().url().optional(),
+    support_url: z.string().url().optional(),
+    support_phone: z.string().regex(/^\+63\d{10}$/, {
+        message: 'Support phone must start with +63 and be followed by 10 digits.',
+    }),
+    support_email: z.string().email(),
 });
 
 const fieldconfig: any = {
@@ -130,14 +135,31 @@ const fieldconfig: any = {
             type: 'text',
             class: 'uppercase',
         },
-        description: 'Name of the category',
+        description: 'Name of the manufacturer',
     },
-    description: {
-        label: 'Description',
-        component: 'textarea',
+    url: {
+        label: 'URL',
         inputProps: {
-            class: 'uppercase',
-            placeholder: 'Enter category description',
+            type: 'text',
+            placeholder: 'Enter manufacturer url',
+        },
+    },
+    support_url: {
+        label: 'Support URL',
+        inputProps: {
+            type: 'text',
+        },
+    },
+    support_phone: {
+        label: 'Support Phone',
+        inputProps: {
+            type: 'text',
+        },
+    },
+    support_email: {
+        label: 'Support Email',
+        inputProps: {
+            type: 'email',
         },
     },
 };
@@ -146,7 +168,10 @@ const form = useForm({
     validationSchema: toTypedSchema(schema), // Validation schema
     initialValues: {
         name: '',
-        description: '',
+        url: '',
+        support_url: '',
+        support_phone: '',
+        support_email: ''
     },
 });
 
