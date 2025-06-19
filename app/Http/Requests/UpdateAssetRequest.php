@@ -28,9 +28,9 @@ class UpdateAssetRequest extends FormRequest
             'location_id' => 'nullable|exists:locations,id', // Optional but must reference an existing location
             'manufacturer_id' => 'nullable|exists:manufacturers,id', // Optional but must reference an existing manufacturer
             'assigned_to_user_id' => 'nullable|exists:users,id', // Optional but must reference an existing user
-            'asset_tag' => 'nullable|string|max:255|unique:assets,asset_tag,' . $assetId, // Optional but must be unique, ignoring the current asset
-            'name' => 'required|string|max:255|unique:assets,name,' . $assetId, // Required, unique, max 255 characters, ignoring the current asset
-            'serial_number' => 'required|string|max:255|unique:assets,serial_number,' . $assetId, // Required, unique, max 255 characters, ignoring the current asset
+            'asset_tag' => 'nullable|string|max:255', // Optional but must be unique, ignoring the current asset
+            'name' => 'required|string|max:255', // Required, unique, max 255 characters, ignoring the current asset
+            'serial_number' => 'required|string|max:255|', // Required, unique, max 255 characters, ignoring the current asset
             'model_name' => 'nullable|string|max:255', // Optional, max 255 characters
             'purchase_date' => 'nullable|date', // Optional, must be a valid date
             'purchase_price' => 'nullable|numeric|min:0', // Optional, must be a positive number
