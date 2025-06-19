@@ -374,7 +374,7 @@ const form = useForm({
         name: '',
         serial_number: '',
         model_name: '',
-        purchase_date: null,
+        purchase_date: parseAbsolute(new Date().toISOString(), getLocalTimeZone()),
         purchase_price: 0,
         status: '',
         notes: '',
