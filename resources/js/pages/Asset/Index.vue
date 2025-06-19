@@ -88,9 +88,9 @@ const columns: ColumnDef<Manufacturer>[] = [
         cell: ({ row }) => h('div', { class: 'break-words whitespace-normal' }, row.getValue('name')),
     },
     {
-        accessorKey: 'category',
+        accessorKey: 'category.name',
         header: 'Category',
-        cell: ({ row }) => h('div', { class: 'break-words whitespace-normal' }, row.getValue('category')),
+        cell: ({ row }) => h('div', { class: 'break-words whitespace-normal' }, row.original.category?.name || ''),
     },
     {
         accessorKey: 'location',
@@ -106,6 +106,11 @@ const columns: ColumnDef<Manufacturer>[] = [
         accessorKey: 'assigned_to',
         header: 'Assigned To User',
         cell: ({ row }) => h('div', { class: 'break-words whitespace-normal' }, row.getValue('assigned_to')),
+    },
+    {
+        accessorKey: 'status',
+        header: 'Status',
+        cell: ({ row }) => h('div', { class: 'break-words whitespace-normal' }, row.getValue('status')),
     },
     {
         id: 'actions', // Column for row actions (edit/delete)

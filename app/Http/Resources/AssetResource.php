@@ -16,7 +16,7 @@ class AssetResource extends JsonResource
     {
         return [
             'id' => $this->id,
-            'category' => $this->category ? $this->category->name : null, // Include category name
+            'category' => $this->category , // Include category name
             'location' => $this->location ? $this->location->name : null, // Include location name
             'manufacturer' => $this->manufacturer ? $this->manufacturer->name : null, // Include manufacturer name
             'assigned_to' => $this->assignedTo ? $this->assignedTo->name : null, // Include assigned user name
