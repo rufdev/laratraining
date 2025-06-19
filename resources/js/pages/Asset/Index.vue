@@ -40,9 +40,13 @@ const breadcrumbs: BreadcrumbItem[] = [
 /* Define Props */
 export interface Asset {
     id: number;
+    category: any;
     category_id: string;
+    location: any;
     location_id: string;
+    manufacturer: any;
     manufacturer_id: string;
+    assigned_to: any;
     assigned_to_user_id: string;
     asset_tag: string;
     name: string;
@@ -54,8 +58,16 @@ export interface Asset {
     notes: string;
 }
 
+const statusEnum = {
+    Deployed: 'Deployed',
+    InStorage: 'In Storage',
+    Maintenance: 'Maintenance',
+    Retired: 'Retired',
+    Broken: 'Broken',
+};
+
 /* Define Table Columns */
-const columns: ColumnDef<Manufacturer>[] = [
+const columns: ColumnDef<Asset>[] = [
     {
         id: 'select', // Column for row selection
         header: ({ table }) =>
@@ -93,24 +105,40 @@ const columns: ColumnDef<Manufacturer>[] = [
         cell: ({ row }) => h('div', { class: 'break-words whitespace-normal' }, row.original.category?.name || ''),
     },
     {
-        accessorKey: 'location',
+        accessorKey: 'location.name',
         header: 'Location',
-        cell: ({ row }) => h('div', { class: 'break-words whitespace-normal' }, row.getValue('location')),
+        cell: ({ row }) => h('div', { class: 'break-words whitespace-normal' }, row.original.location?.name || ''),
     },
     {
-        accessorKey: 'manufacturer',
+        accessorKey: 'manufacturer.name',
         header: 'Manufacturer',
-        cell: ({ row }) => h('div', { class: 'break-words whitespace-normal' }, row.getValue('manufacturer')),
+        cell: ({ row }) => h('div', { class: 'break-words whitespace-normal' }, row.original.manufacturer?.name || ''),
     },
     {
-        accessorKey: 'assigned_to',
+        accessorKey: 'assigned_to.name',
         header: 'Assigned To User',
-        cell: ({ row }) => h('div', { class: 'break-words whitespace-normal' }, row.getValue('assigned_to')),
+        cell: ({ row }) => h('div', { class: 'break-words whitespace-normal' }, row.original.assigned_to?.name || ''),
     },
     {
         accessorKey: 'status',
         header: 'Status',
-        cell: ({ row }) => h('div', { class: 'break-words whitespace-normal' }, row.getValue('status')),
+        cell: ({ row }) => {
+            const status = row.original.status;
+            let colorClass = '';
+
+            // Define color classes based on statusEnum values
+            const statusColors = {
+                [statusEnum.Deployed]: 'text-green-500',
+                [statusEnum.InStorage]: 'text-blue-500',
+                [statusEnum.Maintenance]: 'text-yellow-500',
+                [statusEnum.Retired]: 'text-gray-500',
+                [statusEnum.Broken]: 'text-red-500',
+            };
+
+            colorClass = statusColors[status] || 'text-black';
+
+            return h('div', { class: `break-words whitespace-normal ${colorClass}` }, status);
+        },
     },
     {
         id: 'actions', // Column for row actions (edit/delete)

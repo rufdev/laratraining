@@ -34,7 +34,7 @@ class AssetController extends Controller
         }
 
         $asset = AssetResource::collection(
-            $query->with(['category', 'location', 'manufacturer', 'assignedTo'])->orderBy('name', 'asc')->paginate($request->input('per_page', 5))
+            $query->orderBy('name', 'asc')->paginate($request->input('per_page', 5))
         );
         
         return $asset;
