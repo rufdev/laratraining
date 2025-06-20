@@ -14,7 +14,7 @@ Route::get('/', function () {
 
 Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('dashboard', [DashboardController::class, 'index'])->name('dashboard');
-    // Route::get('dashboard/stats', [DashboardController::class, 'stats'])->name('dashboard.stats');
+    Route::get('dashboard/stats', [DashboardController::class, 'stats'])->name('dashboard.stats');
 });
 
 Route::middleware(['auth', 'verified', 'role:super_admin'])->group(function () {
