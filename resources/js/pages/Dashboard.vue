@@ -61,6 +61,9 @@ let piechartOptions: any;
 let doughnutData: any;
 let doughnutOptions: any;
 
+let chart2Data: any;
+let chart2Options: any;
+
 const rendercharts = () => {
     // Asset by Status Bar Chart
     chartData = {
@@ -130,7 +133,7 @@ const rendercharts = () => {
             },
         },
     };
-
+    // Doughnut Chart Asset by Location
     doughnutData = {
         labels: charts.value.assets_by_location ? charts.value.assets_by_location.map((item: any) => item.location?.name || "NO LOCATION") : [],
         datasets: [
@@ -161,8 +164,42 @@ const rendercharts = () => {
             },
         },
     };
-
-
+    //Bar Chart Asset by User
+    chart2Data = {
+        labels: charts.value.assets_by_assigned_user ? charts.value.assets_by_assigned_user.map((item: any) => item.assigned_to?.name || "NOT ASSIGNED" ) : [],
+        datasets: [
+            {
+                label: 'Assets by Status',
+                backgroundColor: charts.value.assets_by_assigned_user ? charts.value.assets_by_assigned_user.map(() => generateRandomColor()) : [],
+                data: charts.value.assets_by_assigned_user ? charts.value.assets_by_assigned_user.map((item: any) => item.total) : [],
+            },
+        ],
+    };
+    chart2Options = {
+        responsive: true,
+        plugins: {
+            legend: {
+                display: true,
+                position: 'top',
+            },
+            title: {
+                display: true,
+                text: 'Total Assets by User',
+            },
+            datalabels: {
+                display: true,
+                color: '#000000', // Label text color
+                font: {
+                    size: 14, // Label font size
+                    weight: 'bold',
+                },
+                formatter: (value: any, context: any) => {
+                    const label = context.chart.data.labels[context.dataIndex];
+                    return `${value}`; // Format: "Label: Value"
+                },
+            },
+        },
+    };
 };
 
 onMounted(async () => {
@@ -258,7 +295,7 @@ onMounted(async () => {
                         <div class="spinner-border inline-block h-8 w-8 animate-spin rounded-full border-4" role="status"></div>
                     </div>
                     <div v-else>
-                        <PieChart :chart-data="piechartData" :chart-options="piechartOptions" />
+                        <BarChart :chart-data="chart2Data" :chart-options="chart2Options" />
                     </div>
                 </div>
             </div>
