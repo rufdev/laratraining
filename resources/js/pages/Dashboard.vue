@@ -1,4 +1,8 @@
 <script setup lang="ts">
+
+import BarChart from '@/components/chartcomponents/BarChart.vue';
+
+
 import AppLayout from '@/layouts/AppLayout.vue';
 import { type BreadcrumbItem } from '@/types';
 import { Head } from '@inertiajs/vue3';
@@ -45,11 +49,56 @@ const generateRandomColor = () => {
     return randomColor.padEnd(7, '0'); // Ensure the color is always 6 characters long
 };
 
+
+let chartData: any;
+let chartOptions: any;
+
+const rendercharts = () => {
+    // Asset by Status Bar Chart
+    chartData = {
+        labels: charts.value.assets_by_status ? charts.value.assets_by_status.map((item: any) => item.status) : [],
+        datasets: [
+            {
+                label: 'Assets by Status',
+                backgroundColor: charts.value.assets_by_status ? charts.value.assets_by_status.map(() => generateRandomColor()) : [],
+                data: charts.value.assets_by_status ? charts.value.assets_by_status.map((item: any) => item.total) : [],
+            },
+        ],
+    };
+    chartOptions = {
+        responsive: true,
+        plugins: {
+            legend: {
+                display: true,
+                position: 'top',
+            },
+            title: {
+                display: true,
+                text: 'Total Assets by Status',
+            },
+            datalabels: {
+                display: true,
+                color: '#e0e0e0', // Label text color
+                font: {
+                    size: 14, // Label font size
+                    weight: 'bold',
+                },
+                formatter: (value: any, context: any) => {
+                    const label = context.chart.data.labels[context.dataIndex];
+                    return `${value}`; // Format: "Label: Value"
+                },
+            },
+        },
+    };
+};
+
 onMounted(async () => {
     loading.value = true; // Set loading state to true
     await fetchStats(); // Fetch stats from the server
+    rendercharts();
     loading.value = false; // Set loading state to false
 });
+
 </script>
 
 <template>
@@ -88,9 +137,8 @@ onMounted(async () => {
 
                     <div class="mt-3 flex items-end justify-between">
                         <div>
-                            <h4 class="text-2xl font-bold text-gray-800 dark:text-white/90">{{totals.total_manufacturers}}</h4>
+                            <h4 class="text-2xl font-bold text-gray-800 dark:text-white/90">{{ totals.total_manufacturers }}</h4>
                         </div>
-                       
                     </div>
                 </div>
                 <!-- Metric Item End -->
@@ -101,15 +149,21 @@ onMounted(async () => {
 
                     <div class="mt-3 flex items-end justify-between">
                         <div>
-                            <h4 class="text-2xl font-bold text-gray-800 dark:text-white/90">{{totals.total_locations}}</h4>
+                            <h4 class="text-2xl font-bold text-gray-800 dark:text-white/90">{{ totals.total_locations }}</h4>
                         </div>
-                       
                     </div>
                 </div>
                 <!-- Metric Item End -->
             </div>
-            <div class="relative min-h-[60vh] flex-1 rounded-xl border border-sidebar-border/70 md:min-h-min dark:border-sidebar-border">
-                <PlaceholderPattern />
+            <div class="grid grid-cols-1 gap-4 md:grid-cols-2">
+                <div class="rounded-2xl border border-gray-200 bg-white p-5 md:p-6 dark:border-gray-800 dark:bg-white/[0.03]">
+                    <div v-if="loading" class="flex h-full items-center justify-center">
+                        <div class="spinner-border inline-block h-8 w-8 animate-spin rounded-full border-4" role="status"></div>
+                    </div>
+                    <div v-else>
+                        <BarChart :chart-data="chartData" :chart-options="chartOptions" />
+                    </div>
+                </div>
             </div>
         </div>
     </AppLayout>
