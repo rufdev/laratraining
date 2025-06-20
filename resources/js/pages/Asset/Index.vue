@@ -220,15 +220,15 @@ const schema = z.object({
     location_id: z
         .enum(
             props.locations.map((item: any) => item.name)
-        ).nullable(),
+        ).nullable().optional(),
     manufacturer_id: z
         .enum(
             props.manufacturers.map((item: any) => item.name)
-        ).nullable(),
+        ).nullable().optional(),
     assigned_to_user_id: z
         .enum(
             props.users.map((item: any) => item.name)
-        ).nullable(),
+        ).nullable().optional(),
     asset_tag: z
         .string({
             required_error: 'Asset tag is required',
