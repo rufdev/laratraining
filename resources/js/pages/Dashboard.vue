@@ -94,7 +94,7 @@ const rendercharts = () => {
                     size: 14, // Label font size
                     weight: 'bold',
                 },
-                formatter: (value: any, context: any) => {
+                formatter: (value: any) => {
                     // const label = context.chart.data.labels[context.dataIndex];
                     return `${value}`; // Format: "Label: Value"
                 },
@@ -193,7 +193,7 @@ const rendercharts = () => {
                     size: 14, // Label font size
                     weight: 'bold',
                 },
-                formatter: (value: any, context: any) => {
+                formatter: (value: any) => {
                     // const label = context.chart.data.labels[context.dataIndex];
                     return `${value}`; // Format: "Label: Value"
                 },
