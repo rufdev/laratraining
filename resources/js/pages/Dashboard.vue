@@ -2,12 +2,14 @@
 
 import BarChart from '@/components/chartcomponents/BarChart.vue';
 import PieChart from '@/components/chartcomponents/PieChart.vue';
+import DoughnutChart from '@/components/chartcomponents/DoughnutChart.vue';
 
 import AppLayout from '@/layouts/AppLayout.vue';
 import { type BreadcrumbItem } from '@/types';
 import { Head } from '@inertiajs/vue3';
 import axios from 'axios';
 import { onMounted, ref } from 'vue';
+
 
 const breadcrumbs: BreadcrumbItem[] = [
     {
@@ -55,6 +57,9 @@ let chartOptions: any;
 
 let piechartData: any;
 let piechartOptions: any;
+
+let doughnutData: any;
+let doughnutOptions: any;
 
 const rendercharts = () => {
     // Asset by Status Bar Chart
@@ -125,6 +130,38 @@ const rendercharts = () => {
             },
         },
     };
+
+    doughnutData = {
+        labels: charts.value.assets_by_location ? charts.value.assets_by_location.map((item: any) => item.location?.name || "NO LOCATION") : [],
+        datasets: [
+            {
+                label: 'Assets by Location',
+                backgroundColor: charts.value.assets_by_location ? charts.value.assets_by_location.map(() => generateRandomColor()) : [],
+                data: charts.value.assets_by_location ? charts.value.assets_by_location.map((item: any) => item.total) : [],
+            },
+        ],
+    };
+
+    doughnutOptions = {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+            legend: {
+                display: true,
+                
+                position: 'left',
+            },
+            title: {
+                display: true,
+                text: 'Total Assets by Location',
+            },
+            datalabels: {
+                display: true,
+                color: '#000000', // Label text color
+            },
+        },
+    };
+
 
 };
 
@@ -198,6 +235,22 @@ onMounted(async () => {
                     </div>
                     <div v-else>
                         <BarChart :chart-data="chartData" :chart-options="chartOptions" />
+                    </div>
+                </div>
+                <div class="rounded-2xl border border-gray-200 bg-white p-5 md:p-6 dark:border-gray-800 dark:bg-white/[0.03]">
+                    <div v-if="loading" class="flex h-full items-center justify-center">
+                        <div class="spinner-border inline-block h-8 w-8 animate-spin rounded-full border-4" role="status"></div>
+                    </div>
+                    <div v-else>
+                        <PieChart :chart-data="piechartData" :chart-options="piechartOptions" />
+                    </div>
+                </div>
+                <div class="rounded-2xl border border-gray-200 bg-white p-5 md:p-6 dark:border-gray-800 dark:bg-white/[0.03]">
+                    <div v-if="loading" class="flex h-full items-center justify-center">
+                        <div class="spinner-border inline-block h-8 w-8 animate-spin rounded-full border-4" role="status"></div>
+                    </div>
+                    <div v-else>
+                        <DoughnutChart :chart-data="doughnutData" :chart-options="doughnutOptions" />
                     </div>
                 </div>
                 <div class="rounded-2xl border border-gray-200 bg-white p-5 md:p-6 dark:border-gray-800 dark:bg-white/[0.03]">
