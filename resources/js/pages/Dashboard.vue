@@ -1,7 +1,7 @@
 <script setup lang="ts">
 
 import BarChart from '@/components/chartcomponents/BarChart.vue';
-
+import PieChart from '@/components/chartcomponents/PieChart.vue';
 
 import AppLayout from '@/layouts/AppLayout.vue';
 import { type BreadcrumbItem } from '@/types';
@@ -53,6 +53,9 @@ const generateRandomColor = () => {
 let chartData: any;
 let chartOptions: any;
 
+let piechartData: any;
+let piechartOptions: any;
+
 const rendercharts = () => {
     // Asset by Status Bar Chart
     chartData = {
@@ -78,7 +81,7 @@ const rendercharts = () => {
             },
             datalabels: {
                 display: true,
-                color: '#e0e0e0', // Label text color
+                color: '#000000', // Label text color
                 font: {
                     size: 14, // Label font size
                     weight: 'bold',
@@ -90,6 +93,39 @@ const rendercharts = () => {
             },
         },
     };
+
+    //Pie Chart Asset by Category
+    piechartData = {
+        labels: charts.value.assets_by_category ? charts.value.assets_by_category.map((item: any) => item.category.name) : [],
+        datasets: [
+            {
+                label: 'Assets by Category',
+                backgroundColor: charts.value.assets_by_category ? charts.value.assets_by_category.map(() => generateRandomColor()) : [],
+                data: charts.value.assets_by_category ? charts.value.assets_by_category.map((item: any) => item.total) : [],
+            },
+        ],
+    };
+
+    piechartOptions = {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+            legend: {
+                display: true,
+                
+                position: 'left',
+            },
+            title: {
+                display: true,
+                text: 'Total Assets by Category',
+            },
+            datalabels: {
+                display: true,
+                color: '#000000', // Label text color
+            },
+        },
+    };
+
 };
 
 onMounted(async () => {
@@ -162,6 +198,14 @@ onMounted(async () => {
                     </div>
                     <div v-else>
                         <BarChart :chart-data="chartData" :chart-options="chartOptions" />
+                    </div>
+                </div>
+                <div class="rounded-2xl border border-gray-200 bg-white p-5 md:p-6 dark:border-gray-800 dark:bg-white/[0.03]">
+                    <div v-if="loading" class="flex h-full items-center justify-center">
+                        <div class="spinner-border inline-block h-8 w-8 animate-spin rounded-full border-4" role="status"></div>
+                    </div>
+                    <div v-else>
+                        <PieChart :chart-data="piechartData" :chart-options="piechartOptions" />
                     </div>
                 </div>
             </div>
