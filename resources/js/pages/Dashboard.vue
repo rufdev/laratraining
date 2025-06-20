@@ -95,7 +95,7 @@ const rendercharts = () => {
                     weight: 'bold',
                 },
                 formatter: (value: any, context: any) => {
-                    const label = context.chart.data.labels[context.dataIndex];
+                    // const label = context.chart.data.labels[context.dataIndex];
                     return `${value}`; // Format: "Label: Value"
                 },
             },
@@ -194,7 +194,7 @@ const rendercharts = () => {
                     weight: 'bold',
                 },
                 formatter: (value: any, context: any) => {
-                    const label = context.chart.data.labels[context.dataIndex];
+                    // const label = context.chart.data.labels[context.dataIndex];
                     return `${value}`; // Format: "Label: Value"
                 },
             },
