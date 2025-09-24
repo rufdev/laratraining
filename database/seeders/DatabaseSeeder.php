@@ -17,20 +17,20 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
-        // $this->call(UserSeeder::class);
+        $this->call(UserSeeder::class);
 
-         // Create 10 more random manufacturers
-         Manufacturer::factory(10)->create();
+        // Create 10 more random manufacturers
+        Manufacturer::factory(10)->create();
 
-         // Create 10 more random categories
-         Category::factory(10)->create();
- 
-         // Create 10 more random locations
-         Location::factory(10)->create();
- 
-         // Create 100 random assets
-         // These assets will randomly pick existing categories, locations, manufacturers, and users
-         // (including the specific ones from the UserSeeder and the random ones from UserFactory)
-         Asset::factory(100)->create();
+        // Create 10 more random categories
+        Category::factory(10)->create();
+
+        // Create 10 more random locations
+        Location::factory(10)->create();
+
+        // Create 100 random assets
+        // These assets will randomly pick existing categories, locations, manufacturers, and users
+        // (including the specific ones from the UserSeeder and the random ones from UserFactory)
+        Asset::factory(100)->create();
     }
 }
