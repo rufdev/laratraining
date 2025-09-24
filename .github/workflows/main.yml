@@ -25,15 +25,14 @@ jobs:
           password: ${{ secrets.DOCKER_PASSWORD }}
 
       - name: Build and Push Docker Image
-        uses: docker/build-push-action@v5
+        uses: docker/build-push-action@v3
         with:
           context: .
           file: ./Dockerfile
           push: true
           pull: true
-          platforms: linux/amd64,linux/arm64
           cache-from: type=registry,ref=aguilarufino/laravel-vue-starterkit:cache
-          cache-to: type=inline
+          cache-to: type=registry,ref=aguilarufino/laravel-vue-starterkit:cache,mode=max
           tags: |
             aguilarufino/laravel-vue-starterkit:latest
             aguilarufino/laravel-vue-starterkit:${{ github.sha }}
