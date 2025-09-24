@@ -10,7 +10,7 @@ RUN npm install
 # Copy the rest of the application files
 COPY . .
 
-# Build Vue assets
+# Build assets using Laravel Mix or Vite
 RUN npm run build
 
 # Stage 2: Production Stage
@@ -31,7 +31,7 @@ COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 WORKDIR /var/www
 
 # Copy built assets from the build stage
-COPY --from=build /app/public /var/www/public
+COPY --from=build /app/public/build /var/www/public/build
 
 # Copy PHP application files
 COPY . .
