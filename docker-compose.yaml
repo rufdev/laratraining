@@ -6,6 +6,8 @@ services:
     container_name: laravel_app
     env_file:
       - .env.prod
+    volumes:
+      - laravel_app:/var/www
     networks:
       - app-network
 
@@ -17,6 +19,7 @@ services:
     ports:
       - "8080:80"  
     volumes:
+      - laravel_app:/var/www
       - ./nginx/nginx.conf:/etc/nginx/conf.d/default.conf
     networks:
       - app-network
@@ -37,6 +40,7 @@ services:
 
 volumes:
   db_data:
+  laravel_app:
 
 networks:
   app-network:
