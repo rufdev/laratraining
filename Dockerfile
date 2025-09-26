@@ -1,66 +1,58 @@
 # Stage 1: Build Stage
-# This stage is used to build the frontend assets using Node.js.
 FROM node:22 as build
 
-WORKDIR /app # Set the working directory inside the container.
+WORKDIR /app
 
-# Copy only package.json and package-lock.json for caching npm dependencies.
-# This ensures that `npm install` is only re-run if these files change.
+# Copy only package.json and package-lock.json for caching npm dependencies
 COPY package.json package-lock.json ./
-RUN npm install # Install Node.js dependencies.
+RUN npm install
 
-# Copy the rest of the application files to the container.
+# Copy the rest of the application files
 COPY . .
 
-# Build assets using Laravel Mix or Vite.
-# This step compiles frontend assets (CSS, JS, etc.) for production.
+# Build assets using Laravel Mix or Vite
 RUN npm run build
 
 # Stage 2: Production Stage
-# This stage is used to set up the production environment for the Laravel application.
 FROM php:8.2-fpm
 
-# Install system dependencies required for PHP and Laravel.
+# Install system dependencies
 RUN apt-get update && apt-get install -y \
     git curl libpng-dev libonig-dev libxml2-dev zip unzip \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/*
 
-# Install PHP extensions required by Laravel.
+# Install PHP extensions
 RUN docker-php-ext-install pdo pdo_mysql mbstring exif pcntl bcmath gd
 
-# Install Composer (PHP dependency manager) from the composer image.
-# This pulls the Composer binary from the `composer:latest` image.
+# Install Composer
 COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 
-WORKDIR /var/www # Set the working directory for the Laravel application.
+WORKDIR /var/www
 
-# Copy built assets from the build stage to the public directory.
+# Copy built assets from the build stage
 COPY --from=build /app/public/build /var/www/public/build
 
-# Copy the Laravel application files to the container.
+# Copy PHP application files
 COPY . .
 
-# Install PHP dependencies using Composer.
-# This installs Laravel's backend dependencies.
-COPY composer.json composer.lock ./ # Copy Composer files for dependency installation.
+# Install PHP dependencies
+COPY composer.json composer.lock ./
 RUN composer install --no-interaction --prefer-dist --optimize-autoloader
 
-# Set permissions for Laravel's storage and cache directories.
-# These directories need write permissions for the web server.
+# Set permissions for Laravel directories
 RUN chown -R www-data:www-data /var/www/storage /var/www/bootstrap/cache
 RUN chmod -R 775 /var/www/storage /var/www/bootstrap/cache
 
-# Copy the entrypoint script to the container.
-# This script is used to initialize the application when the container starts.
+# Copy the entrypoint script
 COPY entrypoint.sh /entrypoint.sh
-RUN chmod +x /entrypoint.sh # Make the entrypoint script executable.
+RUN chmod +x /entrypoint.sh
 
-# Expose port 9000 for PHP-FPM.
+# Expose port 9000 for PHP-FPM
 EXPOSE 9000
 
-# Use the entrypoint script to initialize the application.
+# Use the entrypoint script
 ENTRYPOINT ["/entrypoint.sh"]
 
-# Start the PHP-FPM server.
+# Start PHP-FPM
 CMD ["php-fpm"]
